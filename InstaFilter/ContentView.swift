@@ -8,23 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var blurAmount: CGFloat = 0 {
-        didSet {
-            print("New value is \(blurAmount)")
-        }
-    }
+    @State var showingActionSheet = false
+    @State var backgroundColor = Color.white
     var body: some View {
-        let blur = Binding<CGFloat>(get: {
-            self.blurAmount
-        }, set: {
-            self.blurAmount = $0
-            print("New value is \(self.blurAmount)")
-        })
-        return VStack {
-            Text("Hello, world!\(blurAmount)")
-                .blur(radius: blurAmount)
-            Slider(value: blur, in: 0...20)
+       Text("Hello World!")
+        .frame(width: 300, height: 300)
+        .background(backgroundColor)
+        .onTapGesture {
+            self.showingActionSheet = true
         }
+        .actionSheet(isPresented: $showingActionSheet, content: {
+            ActionSheet(title: Text("Change Background"), message: Text("Select a new Color"), buttons: [.default(Text("Red"), action: {self.backgroundColor = .red}), .default(Text("Green"), action: {self.backgroundColor = .green}), .default(Text("Blue"), action: {self.backgroundColor = .blue}), .cancel()])
+        })
      
     }
 }
