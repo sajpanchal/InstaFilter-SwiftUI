@@ -6,21 +6,50 @@
 //
 
 import SwiftUI
+import CoreImage
+import CoreImage.CIFilterBuiltins
 
 struct ContentView: View {
-    @State var showingActionSheet = false
-    @State var backgroundColor = Color.white
+    @State var image: Image?
+    
     var body: some View {
-       Text("Hello World!")
-        .frame(width: 300, height: 300)
-        .background(backgroundColor)
-        .onTapGesture {
-            self.showingActionSheet = true
+        VStack {
+            image?
+                .resizable()
+                .scaledToFit()
         }
-        .actionSheet(isPresented: $showingActionSheet, content: {
-            ActionSheet(title: Text("Change Background"), message: Text("Select a new Color"), buttons: [.default(Text("Red"), action: {self.backgroundColor = .red}), .default(Text("Green"), action: {self.backgroundColor = .green}), .default(Text("Blue"), action: {self.backgroundColor = .blue}), .cancel()])
+        .onAppear(perform: {
+            loadImage()
         })
-     
+    }
+    func loadImage() {
+        guard let inputImage = UIImage(named: "image") else {
+            return
+        }
+        let beginImage = CIImage(image: inputImage)
+        let context = CIContext()
+        guard let currentFilter = CIFilter(name: "CITwirlDistortion") else {
+            return
+        }
+        currentFilter.setValue(beginImage, forKey: kCIInputImageKey)
+        //currentFilter.inputImage = beginImage
+        
+        currentFilter.setValue(2000, forKey: kCIInputRadiusKey)
+        //currentFilter.radius = 200
+        
+        currentFilter.setValue(CIVector(x: inputImage.size.width / 2, y: inputImage.size.height / 2), forKey: kCIInputCenterKey)
+        
+        //get CIImage from currentFilter.
+        guard let outputImage = currentFilter.outputImage else {
+            return
+        }
+        // get CGImage from CIImage.
+        if let cgimg = context.createCGImage(outputImage, from: outputImage.extent) {
+            // convert that to a UIImage
+            let uiImage = UIImage(cgImage: cgimg)
+            // convert UIImage to Image
+            image = Image(uiImage: uiImage)
+        }
     }
 }
 
