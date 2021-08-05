@@ -9,6 +9,14 @@ import SwiftUI
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
+class ImageSaver: NSObject {
+    func writeToPhotoAlbum(image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveError), nil)
+    }
+    @objc func saveError(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        print("Save Finished")
+    }
+}
 struct ContentView: View {
     @State var image: Image?
     @State var showingImagePicker = false
@@ -34,6 +42,8 @@ struct ContentView: View {
             return
         }
         image = Image(uiImage: inputImage)
+        let imageSaver = ImageSaver()
+        imageSaver.writeToPhotoAlbum(image: inputImage)
     }
 }
 
