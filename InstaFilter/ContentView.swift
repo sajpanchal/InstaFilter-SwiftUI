@@ -9,42 +9,47 @@ import SwiftUI
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
-class ImageSaver: NSObject {
-    func writeToPhotoAlbum(image: UIImage) {
-        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveError), nil)
-    }
-    @objc func saveError(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-        print("Save Finished")
-    }
-}
 struct ContentView: View {
     @State var image: Image?
-    @State var showingImagePicker = false
-    @State var inputImage: UIImage?
+    @State var filterIntensity = 0.5
     var body: some View {
         VStack {
-            image?
-                .resizable()
-                .scaledToFit()
-            
-            Button(action: {
-                self.showingImagePicker = true
-            }, label: {
-                Text("Select Image")
-            })
+            ZStack {
+                Rectangle()
+                if image != nil {
+                    image?
+                        .resizable()
+                        .scaledToFit()
+                }
+                else {
+                    Text("Tap to select a picture")
+                        .foregroundColor(.white)
+                        .font(.headline)
+                }
+            }
+            .onTapGesture {
+                // select an image
+            }
+            HStack {
+                Text("Intensity")
+                Slider(value: self.$filterIntensity)
+            }
+            .padding(.vertical)
+            HStack {
+                Button("Change Filter") {
+                    //change filter
+                }
+                Spacer()
+                Button("Save") {
+                    // save the picture
+                }
+            }
         }
-        .sheet(isPresented: $showingImagePicker, onDismiss: loadImage, content: {
-            ImagePicker(image: self.$inputImage)
-        })
+        .padding([.horizontal, .bottom])
+        .navigationBarTitle("Instafilter")
+       
     }
-    func loadImage() {
-        guard let inputImage = inputImage else {
-            return
-        }
-        image = Image(uiImage: inputImage)
-        let imageSaver = ImageSaver()
-        imageSaver.writeToPhotoAlbum(image: inputImage)
-    }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
